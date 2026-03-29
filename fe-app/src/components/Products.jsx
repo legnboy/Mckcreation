@@ -74,7 +74,7 @@ const Products = ({
             <span className="font-semibold">{count}</span>
           </span>
         ) : (
-          <span>No products available</span>
+          <span></span>
         )}
       </div>
 

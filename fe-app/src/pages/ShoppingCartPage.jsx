@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ShoppingCart from "../components/account/ShoppingCart";
-import PageCounter from "../components/PageCounter"; // adjust path
+import PageCounter from "../components/PageCounter";
 import { useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 10;
@@ -14,6 +14,8 @@ const ShoppingCartPage = () => {
   const nav = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+  console.log(API_BASE_URL)
+
   useEffect(() => {
     if (!jwt) {
       nav("/account/login");
@@ -26,9 +28,7 @@ const ShoppingCartPage = () => {
       .then((r) => r.json())
       .then((data) => {
         setOrders(data);
-
         console.log(data)
-
         const totalItems = data.count ?? 0;
         const pages = Math.ceil(totalItems / PAGE_SIZE);
 
