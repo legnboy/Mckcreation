@@ -1,6 +1,8 @@
 package com.mckcreation.be_app.service.impl;
+
 import com.mckcreation.be_app.dto.PlacedOrderDTO;
 import com.mckcreation.be_app.dto.responses.PlacedOrdersAndCountDTO;
+import com.mckcreation.be_app.dto.responses.SalesSummaryDTO;
 import com.mckcreation.be_app.model.PlacedOrder;
 import com.mckcreation.be_app.model.Shipping;
 import com.mckcreation.be_app.model.User;
@@ -12,12 +14,15 @@ import com.mckcreation.be_app.service.EmailService;
 import com.mckcreation.be_app.service.PlacedOrderService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PlacedOrderServiceImpl implements PlacedOrderService {
@@ -58,13 +63,12 @@ public class PlacedOrderServiceImpl implements PlacedOrderService {
         Timestamp timestamp = new Timestamp(date.getTime());
 
         PlacedOrder placedOrder = PlacedOrder.builder()
-                .orderDetails(placedOrderDTO.getDetails())
-                .total(placedOrderDTO.getTotal())
+                .orderDescription(placedOrderDTO.getDetails())
+                .amount(placedOrderDTO.getTotal())
                 .status(placedOrderDTO.getStatus())
                 .shipping(shipping)
                 .user(user)
-                .createdAt(timestamp)
-                .updatedAt(timestamp)
+                .orderDate(LocalDateTime.now()) // Assuming current time as order date
                 .build();
 
         PlacedOrder savedPlacedOrder = placedOrderRepository.save(placedOrder);
@@ -95,7 +99,7 @@ public class PlacedOrderServiceImpl implements PlacedOrderService {
     public PlacedOrdersAndCountDTO getUserPlacedOrders(long id, int page, int size) {
 
         return PlacedOrdersAndCountDTO.builder()
-                .placedOrderList(placedOrderRepository.findUserPlacedOrders(id, PageRequest.of(page, size)))
+                .placedOrderList(placedOrderRepository.findUserPlacedOrders(id, PageRequest.of(page, size)).getContent())
                 .count(placedOrderRepository.countPlacedOrders())
                 .build();
     }
@@ -115,16 +119,13 @@ public class PlacedOrderServiceImpl implements PlacedOrderService {
 
         Shipping Information:
         -----------------------
-        Address: %s
-        City: %s
-        State: %s
-        Zip Code: %s
+        Address: %s\n        City: %s\n        State: %s\n        Zip Code: %s
 
         We appreciate your business.
         McKCreation Team
         """.formatted(
                 formattedItems,
-                order.getTotal() / 100.0,
+                order.getTotal(),
                 order.getStatus(),
                 order.getShippingDTO().getAddress(),
                 order.getShippingDTO().getCity(),
@@ -173,5 +174,43 @@ public class PlacedOrderServiceImpl implements PlacedOrderService {
 
         return sb.toString();
     }
+
+
+    // START of new methods for sales summary and pagination
+    @Override
+    public Page<PlacedOrder> getPlacedOrders(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return placedOrderRepository.findAll(pageRequest);
+    }
+
+    @Override
+    public SalesSummaryDTO getSalesSummary() {
+        List<PlacedOrder> allOrders = placedOrderRepository.findAll();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        double dailySales = allOrders.stream()
+                .filter(order -> order.getOrderDate().toLocalDate().isEqual(now.toLocalDate()))
+                .mapToDouble(PlacedOrder::getAmount)
+                .sum();
+
+        double monthlySales = allOrders.stream()
+                .filter(order -> order.getOrderDate().getMonth().equals(now.getMonth()) && order.getOrderDate().getYear() == now.getYear())
+                .mapToDouble(PlacedOrder::getAmount)
+                .sum();
+
+        double yearlySales = allOrders.stream()
+                .filter(order -> order.getOrderDate().getYear() == now.getYear())
+                .mapToDouble(PlacedOrder::getAmount)
+                .sum();
+
+        double allTimeSales = allOrders.stream()
+                .mapToDouble(PlacedOrder::getAmount)
+                .sum();
+
+        return new SalesSummaryDTO(dailySales, monthlySales, yearlySales, allTimeSales);
+    }
+    // END of new methods
+
 
 }
