@@ -52,15 +52,22 @@ const AccountNav = () => {
           Payment History
         </Link>
         
-        {user.role === 'ROLE_ADMIN' ?
-        <Link
-          to="/account/admin"
-          className="text-lg font-semibold text-gray-800 hover:text-pink-500 transition duration-300"
-        >
-          Admin
-        </Link>
-        : null
-        }
+        {user.role === 'ROLE_ADMIN' ? (
+          <>
+            <Link
+              to="/account/admin"
+              className="text-lg font-semibold text-gray-800 hover:text-pink-500 transition duration-300"
+            >
+              Admin
+            </Link>
+            <Link
+              to="/account/sales"
+              className="text-lg font-semibold text-gray-800 hover:text-pink-500 transition duration-300"
+            >
+              Sales
+            </Link>
+          </>
+        ) : null}
         
         <button
           onClick={handleLogout}

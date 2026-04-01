@@ -1,10 +1,24 @@
-import React from 'react'
-import SalesSummary from '../components/account/SalesSummary'
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
+import SalesSummary from '../components/account/SalesSummary';
 
 const SalesSummaryPage = () => {
-  return (
-    <SalesSummary />
-  )
-}
+  const jwt = localStorage.getItem('jwt');
+  const nav = useNavigate();
 
-export default SalesSummaryPage
+  useEffect(() => {
+    if (!jwt) {
+      nav('/account/login');
+      return;
+    }
+    const decoded = jwtDecode(jwt);
+    if (decoded.role !== 'ROLE_ADMIN') {
+      nav('/forbidden');
+    }
+  }, []);
+
+  return <SalesSummary jwt={jwt} />;
+};
+
+export default SalesSummaryPage;

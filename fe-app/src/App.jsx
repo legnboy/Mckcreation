@@ -28,6 +28,7 @@ import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import ForbiddenPage from './pages/ForbiddenPage'
 import AdminPage from './pages/AdminPage'
+import SalesSummaryPage from './pages/SalesSummaryPage'
 
 function App() {
 
@@ -70,6 +71,7 @@ function App() {
           <Route path='/account/settings' element={<AccountSettingsPage />} />
           <Route path='/account/payment-history' element={<PaymentHistoryPage />} />
           <Route path='/account/admin' element={<AdminPage />} />
+          <Route path='/account/sales' element={<SalesSummaryPage />} />
         </Route>
       </Route>
     )
