@@ -20,4 +20,16 @@ public interface PlacedOrderRepository extends JpaRepository<PlacedOrder, Long> 
 
     @Query("SELECT count(o) FROM PlacedOrder o")
     long countPlacedOrders();
+
+    @Query("SELECT COALESCE(SUM(o.amount), 0) FROM PlacedOrder o WHERE CAST(o.orderDate AS date) = CURRENT_DATE")
+    double sumDailySales();
+
+    @Query("SELECT COALESCE(SUM(o.amount), 0) FROM PlacedOrder o WHERE YEAR(o.orderDate) = YEAR(CURRENT_DATE) AND MONTH(o.orderDate) = MONTH(CURRENT_DATE)")
+    double sumMonthlySales();
+
+    @Query("SELECT COALESCE(SUM(o.amount), 0) FROM PlacedOrder o WHERE YEAR(o.orderDate) = YEAR(CURRENT_DATE)")
+    double sumYearlySales();
+
+    @Query("SELECT COALESCE(SUM(o.amount), 0) FROM PlacedOrder o")
+    double sumAllTimeSales();
 }

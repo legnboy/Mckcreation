@@ -55,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/item/update/{id}").hasRole("ADMIN")
                         .requestMatchers("/api/item/delete/{id}").hasRole("ADMIN")
                         .requestMatchers("/api/placed-order/get-all").hasRole("ADMIN")
+                        .requestMatchers("/api/placed-orders").hasRole("ADMIN")
+                        .requestMatchers("/api/placed-orders/sales-summary").hasRole("ADMIN")
                         .requestMatchers("/api/category/{id}").hasRole("ADMIN")
                         .requestMatchers("/api/category/delete/{id}").hasRole("ADMIN")
                         .requestMatchers("/api/user/get-all").hasRole("ADMIN")

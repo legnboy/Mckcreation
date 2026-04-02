@@ -22,7 +22,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PlacedOrderServiceImpl implements PlacedOrderService {
@@ -185,30 +184,12 @@ public class PlacedOrderServiceImpl implements PlacedOrderService {
 
     @Override
     public SalesSummaryDTO getSalesSummary() {
-        List<PlacedOrder> allOrders = placedOrderRepository.findAll();
-
-        LocalDateTime now = LocalDateTime.now();
-
-        double dailySales = allOrders.stream()
-                .filter(order -> order.getOrderDate().toLocalDate().isEqual(now.toLocalDate()))
-                .mapToDouble(PlacedOrder::getAmount)
-                .sum();
-
-        double monthlySales = allOrders.stream()
-                .filter(order -> order.getOrderDate().getMonth().equals(now.getMonth()) && order.getOrderDate().getYear() == now.getYear())
-                .mapToDouble(PlacedOrder::getAmount)
-                .sum();
-
-        double yearlySales = allOrders.stream()
-                .filter(order -> order.getOrderDate().getYear() == now.getYear())
-                .mapToDouble(PlacedOrder::getAmount)
-                .sum();
-
-        double allTimeSales = allOrders.stream()
-                .mapToDouble(PlacedOrder::getAmount)
-                .sum();
-
-        return new SalesSummaryDTO(dailySales, monthlySales, yearlySales, allTimeSales);
+        return new SalesSummaryDTO(
+                placedOrderRepository.sumDailySales(),
+                placedOrderRepository.sumMonthlySales(),
+                placedOrderRepository.sumYearlySales(),
+                placedOrderRepository.sumAllTimeSales()
+        );
     }
     // END of new methods
 
